@@ -8,7 +8,7 @@ using namespace std;
 using namespace cv;
 const int grayMax = 255;
 
-Mat finalImage(Mat image)
+Mat myHistogram(Mat image)
 {
 	int graylevel[grayMax + 1];
 	Mat img;
@@ -45,7 +45,7 @@ Mat finalImage(Mat image)
 	return img;
 }
 
-Mat Demist(Mat image) {
+Mat imageDemist(Mat image) {
 	int n = image.rows * image.cols;
 	int graylevel[grayMax + 1] = { 0 };
 	double px[grayMax + 1] = { 0 };
@@ -88,11 +88,11 @@ Mat Demist(Mat image) {
 	}
 	return img;
 }
-int line(int x, double k,double b) {
+int getY(int x, double k,double b) {
 	return k * x + b;
 }
 
-Mat newImage(Mat image){
+Mat newDemist(Mat image){
 	int N = image.rows * image.cols;
 	int graylevel[grayMax + 1] = { 0 };
 	int px_min = 0;
@@ -137,7 +137,7 @@ Mat newImage(Mat image){
 	{
 		uchar* ptr = img.ptr<uchar>(i);
 		for (int j = 0; j < img.cols - 1; j++) {
-			ptr[j] = line(ptr[j],k,b);
+			ptr[j] = getY(ptr[j],k,b);
 		}
 	}
 	return img;
@@ -145,17 +145,42 @@ Mat newImage(Mat image){
 
 int main()
 {
-	Mat image = imread("Lpic5.jpg",1);
 	Histogram1D h;
-	cvtColor(image, image, CV_BGR2GRAY);
-	Mat out = Demist(image); 
-	imshow("原图1", h.getHistogramImage(image, 1));
-	imshow("原图", image);
+	Mat image0 = imread("Lpic0.jpg",1);
+	//Mat image1 = imread("Lpic1.jpg", 1);
+	//Mat image2 = imread("Lpic2.jpg", 1);
+	//Mat image3 = imread("Lpic3.jpg", 1);
+	//Mat image4 = imread("Lpic4.jpg", 1);
+
+	//彩色图像灰度化
+	cvtColor(image0, image0, CV_BGR2GRAY);
+	//cvtColor(image1, image1, CV_BGR2GRAY);
+	//cvtColor(image2, image2, CV_BGR2GRAY);
+	//cvtColor(image3, image3, CV_BGR2GRAY);
+	//cvtColor(image4, image4, CV_BGR2GRAY);
+
+	//论文算法
+	Mat out0 = Demist(image0); 
+	//Mat out1 = Demist(image1); 
+	//Mat out2 = Demist(image2); 
+	//Mat out3 = Demist(image3); 
+	//Mat out4 = Demist(image4); 
+
+	//改进的算法
+	//Mat out0 = newDemist(image0);
+
+	//直方图均值化
+	//Mat out0 = myHistogram(image0);
+
+	//openCV封装的直方图均值化
+	equalizeHist(image0, image0);
+
+	imshow("原图", image0);
+	imshow("原图1", h.getHistogramImage(image0, 1));
 	imshow("处理后", out);
-	imshow("处理后1", h.getHistogramImage(out, 1));
-	equalizeHist(image, image);
-	imshow("openCV", h.getHistogramImage(image, 1));
-	imshow("openCV1", image);
+	imshow("处理后1", h.getHistogramImage(out0, 1));
+	imshow("openCV", image0);
+	imshow("openCV1", h.getHistogramImage(image0, 1));
 	waitKey();
 	return 0;
 }
